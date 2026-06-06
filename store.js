@@ -173,10 +173,12 @@ const DB = {
             // Bajamos configuración
             const cSnap = await DB.firestore.collection('config').doc('main').get();
             if (cSnap.exists) {
-                const localConfig = Store.getConfig();
                 const cloudConfig = cSnap.data() || {};
-                // Preferimos siempre valores locales para no perder cambios del panel.
-                const mergedConfig = { ...cloudConfig, ...localConfig };
+                const localRaw = localStorage.getItem('joyeria_config');
+                // Solo pisamos Firebase con local si el usuario ya guardó algo explícitamente
+                const mergedConfig = localRaw
+                    ? { ...cloudConfig, ...JSON.parse(localRaw) }
+                    : cloudConfig;
                 localStorage.setItem('joyeria_config', JSON.stringify(mergedConfig));
             }
 
@@ -298,9 +300,7 @@ const Store = {
     deleteProduct: (id) => {
         let products = Store.getProducts();
         products = products.filter(p => p.id != id);
-        localStorage.setItem('joyeria_products', JSON.stringify(products));
-        
-        // SYNC CLOUD
+        try { localStorage.setItem('joyeria_products', JSON.stringify(products)); } catch(e) {}
         if (DB.isCloud) DB.delete('products', id);
     },
 
@@ -341,18 +341,14 @@ const Store = {
         msg.id = Date.now();
         msg.date = new Date().toLocaleDateString();
         messages.unshift(msg);
-        localStorage.setItem('joyeria_messages', JSON.stringify(messages));
-        
-        // SYNC CLOUD
+        try { localStorage.setItem('joyeria_messages', JSON.stringify(messages)); } catch(e) {}
         if (DB.isCloud) DB.save('messages', msg.id, msg);
     },
 
     deleteMessage: (id) => {
         let messages = Store.getMessages();
         messages = messages.filter(m => m.id != id);
-        localStorage.setItem('joyeria_messages', JSON.stringify(messages));
-        
-        // SYNC CLOUD
+        try { localStorage.setItem('joyeria_messages', JSON.stringify(messages)); } catch(e) {}
         if (DB.isCloud) DB.delete('messages', id);
     },
 
@@ -377,7 +373,12 @@ const Store = {
             createdAt: Date.now()
         };
         all.unshift(saved);
-        localStorage.setItem('joyeria_comments', JSON.stringify(all));
+        try {
+            localStorage.setItem('joyeria_comments', JSON.stringify(all));
+        } catch(e) {
+            console.warn('No se pudo guardar el comentario (almacenamiento lleno).');
+            return null;
+        }
         if (DB.isCloud) DB.save('comments', saved.id, saved);
         return saved;
     },
@@ -385,7 +386,7 @@ const Store = {
     deleteComment: (id) => {
         let all = Store.getAllComments();
         all = all.filter(c => c.id != id);
-        localStorage.setItem('joyeria_comments', JSON.stringify(all));
+        try { localStorage.setItem('joyeria_comments', JSON.stringify(all)); } catch(e) {}
         if (DB.isCloud) DB.delete('comments', id);
     },
 
@@ -397,14 +398,11 @@ const Store = {
 
     addSubscriber: (email) => {
         const subs = Store.getSubscribers();
-        if(!subs.includes(email)) {
+        if(!subs.find(s => (s.email || s) === email)) {
             const newSub = { email, date: new Date().toLocaleDateString(), id: Date.now() };
             subs.unshift(newSub);
-            localStorage.setItem('joyeria_subscribers', JSON.stringify(subs));
-            
-            // SYNC CLOUD
+            try { localStorage.setItem('joyeria_subscribers', JSON.stringify(subs)); } catch(e) {}
             if (DB.isCloud) DB.save('subscribers', newSub.id, newSub);
-            
             return true;
         }
         return false;

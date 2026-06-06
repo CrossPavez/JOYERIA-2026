@@ -239,7 +239,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const nick = container.querySelector('.comment-nick-input').value;
             const text = container.querySelector('.comment-text-input').value.trim();
             if (!text) return;
-            window.store.saveComment({ productId, nick, text });
+            const result = window.store.saveComment({ productId, nick, text });
+            if (result === null) {
+                alert('No se pudo guardar el comentario. El almacenamiento local está lleno.');
+                return;
+            }
             renderComments(productId);
         });
     }
