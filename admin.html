@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Dashboard Admin | Asbe Ziad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <script src="auth.js"></script>
+    <script>Auth.checkSession();</script>
+    <style>
+        :root {
+            --primary: #000;
+            --secondary: #333;
+            --accent: #C5A059;
+            --bg: #eef1f6;
+            --white: #fff;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --surface: rgba(255, 255, 255, 0.82);
+            --surface-strong: rgba(255, 255, 255, 0.96);
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(197,160,89,0.18), transparent 32%),
+                radial-gradient(circle at bottom right, rgba(0,0,0,0.08), transparent 28%),
+                linear-gradient(180deg, #f6f7fb 0%, #edf0f5 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--secondary);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(255,255,255,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.25) 1px, transparent 1px);
+            background-size: 42px 42px;
+            opacity: 0.12;
+            mask-image: linear-gradient(180deg, rgba(0,0,0,0.35), transparent 78%);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 290px;
+            background:
+                linear-gradient(180deg, rgba(7,7,7,0.98) 0%, rgba(18,18,18,0.98) 100%);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 12px 0 30px rgba(0,0,0,0.18);
+            border-right: 1px solid rgba(255,255,255,0.06);
+        }
+        .sidebar-header { padding: 32px 22px 22px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-header h2 { margin: 0; font-size: 1.55rem; letter-spacing: 2.5px; }
+        
+        .profile-widget {
+            padding: 22px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(180deg, rgba(17,17,17,1) 0%, rgba(11,11,11,1) 100%);
+        }
+        .profile-widget img {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #fff;
+            border: 2px solid var(--accent);
+            margin-bottom: 12px;
+            box-shadow: 0 0 0 6px rgba(197,160,89,0.08);
+        }
+        .profile-widget h4 { margin: 0; color: #fff; font-size: 0.95rem; }
+        .profile-widget span { font-size: 0.72rem; color: rgba(255,255,255,0.56); text-transform: uppercase; letter-spacing: 1.6px; }
+
+        .nav-menu { flex: 1; padding: 18px 14px 14px; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            color: #bcbcbc;
+            text-decoration: none;
+            transition: 0.24s ease;
+            border-left: 3px solid transparent;
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(197,160,89,0.18), transparent 65%);
+            opacity: 0;
+            transition: opacity 0.24s ease;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.06);
+            color: var(--white);
+            border-left-color: var(--accent);
+            transform: translateX(2px);
+        }
+        .nav-item:hover::before, .nav-item.active::before { opacity: 1; }
+        .nav-item i { width: 20px; text-align: center; }
+
+        .logout-link { margin-top: auto; color: #ff8f8f; border-top: 1px solid rgba(255,255,255,0.08); border-radius: 0; }
+        .logout-link:hover { background: rgba(255,77,77,0.12); color: #fff; }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            padding: 28px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+            min-width: 0;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            padding: 18px 22px;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.55);
+            border-radius: 22px;
+            box-shadow: 0 18px 40px rgba(15, 20, 30, 0.06);
+            backdrop-filter: blur(18px);
+        }
+        .main-title {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: #1c1d22;
+            letter-spacing: 0.3px;
+        }
+
+        .dashboard-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(280px, 360px);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .hero-panel {
+            background: linear-gradient(135deg, rgba(17,17,18,0.97) 0%, rgba(34,34,37,0.92) 100%);
+            color: #fff;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 18px 42px rgba(10, 12, 18, 0.18);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-panel::after {
+            content: '';
+            position: absolute;
+            inset: auto -40px -50px auto;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(197,160,89,0.35), transparent 68%);
+            pointer-events: none;
+        }
+
+        .hero-panel h2 {
+            margin: 0 0 10px;
+            font-size: clamp(1.6rem, 2.8vw, 2.5rem);
+            letter-spacing: 0.5px;
+        }
+
+        .hero-panel p {
+            margin: 0;
+            max-width: 58ch;
+            color: rgba(255,255,255,0.78);
+            line-height: 1.7;
+        }
+
+        .hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.14);
+            transform: translateY(-1px);
+        }
+
+        .hero-side {
+            display: grid;
+            gap: 14px;
+        }
+
+        .hero-side-card {
+            background: var(--surface-strong);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.75);
+            box-shadow: 0 16px 38px rgba(15,20,30,0.06);
+            backdrop-filter: blur(14px);
+        }
+
+        .hero-side-card small {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.6px;
+            color: #8a8f99;
+            margin-bottom: 8px;
+        }
+
+        .hero-side-card strong {
+            display: block;
+            font-size: 1.5rem;
+            color: #17181c;
+            margin-bottom: 6px;
+        }
+
+        .hero-side-card p {
+            margin: 0;
+            color: #6f7480;
+            line-height: 1.55;
+        }
+
+        .dashboard-split {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-panel {
+            height: 100%;
+        }
+
+        .dashboard-recent-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .dashboard-recent-item {
+            display: grid;
+            grid-template-columns: 72px minmax(0, 1fr);
+            gap: 14px;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #eef0f4;
+            border-radius: 18px;
+            background: #fff;
+        }
+
+        .dashboard-recent-item img {
+            width: 72px;
+            height: 72px;
+            border-radius: 14px;
+            object-fit: cover;
+        }
+
+        .dashboard-recent-meta {
+            display: grid;
+            gap: 4px;
+        }
+
+        .dashboard-recent-meta h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-family: var(--font-body);
+            text-transform: none;
+            letter-spacing: 0;
+            font-weight: 700;
+        }
+
+        .dashboard-recent-meta p {
+            margin: 0;
+            color: #6f7480;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .dashboard-recent-footer {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+            color: #8a6a33;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dashboard-empty {
+            padding: 18px;
+            border-radius: 16px;
+            background: #f7f8fb;
+            color: #6f7480;
+            text-align: center;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 34px; }
+        .stat-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.86) 100%);
+            padding: 24px;
+            border-radius: 22px;
+            box-shadow: 0 16px 38px rgba(15, 20, 30, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.24s ease, box-shadow 0.24s ease;
+            border: 1px solid rgba(255,255,255,0.7);
+            backdrop-filter: blur(14px);
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 24px 46px rgba(15, 20, 30, 0.12); }
+        .stat-icon { width: 58px; height: 58px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; }
+        .stat-icon.blue { background: linear-gradient(135deg, #e3f2fd, #d0e8ff); color: #1d7dd6; }
+        .stat-icon.green { background: linear-gradient(135deg, #e8f5e9, #d5efdc); color: #2f9e44; }
+        .stat-icon.gold { background: linear-gradient(135deg, #fff8e1, #ffecb3); color: #c79a1e; }
+        
+        .stat-info h3 { margin: 0 0 5px 0; font-size: 1.8rem; }
+        .stat-info p { margin: 0; color: #6f7480; font-size: 0.9rem; }
+
+        /* Generic Card */
+        .card {
+            background: var(--surface-strong);
+            padding: 28px;
+            border-radius: 22px;
+            box-shadow: 0 16px 38px rgba(15,20,30,0.06);
+            margin-bottom: 26px;
+            border: 1px solid rgba(255,255,255,0.75);
+            backdrop-filter: blur(14px);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #edf0f3;
+        }
+        .card-title { font-size: 1.15rem; font-weight: 700; color: #1c1d22; }
+
+        /* Controls */
+        .btn { padding: 11px 18px; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; transition: 0.24s ease; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: #2f2f2f; transform: translateY(-1px); }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+        .btn-danger { background: #fee; color: var(--danger); }
+        .btn-danger:hover { background: #fdd; }
+        .btn-icon { padding: 8px; border-radius: 10px; }
+
+        .search-bar {
+            padding: 12px 15px;
+            border: 1px solid #dde1e7;
+            border-radius: 12px;
+            width: 320px;
+            background: #fff;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #edf0f3; vertical-align: top; }
+        th { font-weight: 700; color: #6d7280; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; }
+        td img { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; background: #eee; }
+        .capsule { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .capsule-featured { background: #fff8e1; color: #f39c12; }
+        .capsule-normal { background: #f1f2f6; color: #7f8c8d; }
+
+        /* Forms */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group.full { grid-column: span 2; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; font-family: inherit; background: #fff; }
+        .form-group input:focus { border-color: var(--primary); outline: none; }
+
+        .preview-box { width: 100px; height: 100px; border: 2px dashed #ddd; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-top: 10px; overflow: hidden; background: #fff; }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+        .photo-slot { padding: 14px; border: 1px solid #eee; border-radius: 18px; background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%); }
+        .photo-slot label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #666; }
+        .photo-preview { width: 100%; height: 140px; margin-top: 10px; }
+        .inventory-card { display: grid; grid-template-columns: 120px 1fr; gap: 20px; align-items: start; }
+        .inventory-card img { width: 120px; height: 120px; object-fit: cover; border-radius: 16px; }
+        .inventory-meta { display: grid; gap: 8px; }
+        .inventory-title { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .inventory-description { color: #666; font-size: 0.92rem; line-height: 1.55; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12,12,14,0.55); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(8px); padding: 18px; }
+        .modal-content { background: var(--white); padding: 30px; border-radius: 24px; width: 760px; max-width: 92%; max-height: 92vh; overflow-y: auto; animation: slideIn 0.3s ease; box-shadow: 0 28px 70px rgba(0,0,0,0.25); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .close-modal { cursor: pointer; font-size: 1.5rem; color: #999; }
+        
+        @keyframes slideIn { from{transform: translateY(-20px); opacity: 0;} to{transform: translateY(0); opacity: 1;} }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: -100%; top: 0; height: 100%; width: 84%; max-width: 320px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 10px 0 20px rgba(0,0,0,0.3); }
+            .sidebar.active { left: 0; }
+            .main { margin-left: 0; padding: 16px; padding-top: 70px; overflow-y: auto; min-height: 0; } /* Space for mobile header */
+            
+            .mobile-header { display: flex !important; position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: rgba(255,255,255,0.94); z-index: 90; align-items: center; padding: 0 20px; box-shadow: 0 10px 24px rgba(0,0,0,0.06); justify-content: space-between; backdrop-filter: blur(14px); }
+            .mobile-toggle { font-size: 1.5rem; color: var(--secondary); cursor: pointer; padding: 10px; }
+            
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .dashboard-hero { grid-template-columns: 1fr; }
+            .dashboard-split { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: span 1; }
+            .search-bar { width: 100%; }
+            .card { padding: 20px; }
+            .main-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .modal-content { width: 100%; max-width: 100%; height: auto; max-height: 94vh; border-radius: 18px 18px 0 0; position: relative; }
+            .photo-grid { grid-template-columns: 1fr; }
+            .photo-preview { height: 180px; }
+            .inventory-card { grid-template-columns: 1fr; }
+            .inventory-card img { width: 100%; height: 220px; }
+            .table-responsive { overflow-x: auto; }
+            table { min-width: 900px; }
+            
+            /* Overlay when sidebar open */
+            .sidebar-overlay { 
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.5); z-index: 95; 
+                opacity: 0; visibility: hidden; transition: 0.3s;
+                backdrop-filter: blur(2px);
+            }
+            .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        }
+
+        .mobile-header { display: none; } /* Hidden on desktop */
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+        <div style="font-weight: bold; font-size: 1.1rem;">Asbe Ziad Admin</div>
+        <div><!-- Spacer or extra icon --></div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Asbe Ziad</h2>
+        </div>
+        <div class="profile-widget">
+            <img src="" id="sidebarAvatar" alt="Admin">
+            <h4 id="sidebarName">Admin</h4>
+            <span>Propietario</span>
+        </div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="#" class="nav-item" onclick="switchTab('inventory', this)"><i class="fas fa-gem"></i> Inventario</a>
+            <a href="#" class="nav-item" onclick="switchTab('messages', this)"><i class="fas fa-envelope"></i> Mensajes</a>
+            <a href="#" class="nav-item" onclick="switchTab('cms', this)"><i class="fas fa-pen-nib"></i> Contenido Web</a>
+            <a href="#" class="nav-item" onclick="switchTab('settings', this)"><i class="fas fa-user-cog"></i> Configuración</a>
+            <a href="index.html" target="_blank" class="nav-item"><i class="fas fa-external-link-alt"></i> Ver Página Real</a>
+            
+            <a href="#" class="nav-item logout-link" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        
+        <!-- Dashboard View -->
+        <div id="view-dashboard" class="view-section">
+            <div class="main-header">
+                <div class="main-title">Resumen General</div>
+                <div id="dashboardDate"></div>
+            </div>
+
+            <div class="dashboard-hero">
+                <div class="hero-panel">
+                    <h2>Control visual de inventario</h2>
+                    <p>Revisa el estado real de la colección, el volumen de fotos cargadas y las joyas destacadas antes de publicar cada pieza.</p>
+                    <div class="hero-badges">
+                        <span class="hero-badge"><i class="fas fa-gem"></i> Inventario vivo</span>
+                        <span class="hero-badge"><i class="fas fa-images"></i> Galerías ligeras</span>
+                        <span class="hero-badge"><i class="fas fa-mobile-alt"></i> Responsive</span>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary" onclick="switchTab('inventory', this)"><i class="fas fa-layer-group"></i> Ir al inventario</button>
+                        <button class="btn btn-ghost" onclick="openProductModal()"><i class="fas fa-plus"></i> Nueva joya</button>
+                    </div>
+                </div>
+                <div class="hero-side">
+                    <div class="hero-side-card">
+                        <small>Joyas activas</small>
+                        <strong id="dashboardActiveCount">0</strong>
+                        <p>Total visible en el catálogo y el panel de edición.</p>
+                    </div>
+                    <div class="hero-side-card">
+                        <small>Promedio de fotos</small>
+                        <strong id="dashboardAvgPhotos">0</strong>
+                        <p>Promedio de imágenes por joya, optimizadas para web.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-box-open"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statTotal">0</h3>
+                        <p>Total Joyas</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-images"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statPhotos">0</h3>
+                        <p>Fotos Totales</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon gold"><i class="fas fa-star"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statFeatured">0</h3>
+                        <p>Destacados</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-split">
+                <div class="card dashboard-panel">
+                    <div class="card-header">
+                        <div class="card-title">Categorías Populares</div>
+                    </div>
+                    <div id="categoryStats" style="display: grid; gap: 16px; padding-top: 10px;">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <div class="card dashboard-panel">
+                    <div class="card-header">
+                        <div class="card-title">Joyas Recientes</div>
+                        <button class="btn btn-sm btn-primary" onclick="switchTab('inventory', this)">Ver todo</button>
+                    </div>
+                    <div id="recentProducts" class="dashboard-recent-list"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Cobertura del Inventario</div>
+                </div>
+                <div class="dashboard-grid" style="margin-bottom: 0;">
+                    <div class="hero-side-card" style="box-shadow:none; background:#fff;">
+                        <small>Detalle principal</small>
+                        <strong id="dashboardTopCategory">-</strong>
+                        <p>Categoría con más presencia en la colección.</p>
+                    </div>
+                    <div class="hero-side-card" style="box-shadow:none; background:#fff;">
+                        <small>Fotos por revisar</small>
+                        <strong id="dashboardMissingPhotos">0</strong>
+                        <p>Joyas que aún no completan su galería.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory View -->
+        <div id="view-inventory" class="view-section" style="display: none;">
+            <div class="main-header">
+                <div class="main-title">Inventario de Joyas</div>
+                <button class="btn btn-primary" onclick="openProductModal()"><i class="fas fa-plus"></i> Nueva Joya</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <input type="text" class="search-bar" placeholder="Buscar por nombre o categoría..." onkeyup="filterProducts(this.value)">
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Material</th>
+                                <th>Descripción</th>
+                                <th>Fotos</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTable">
+                            <!-- JS Generated -->
+                        </tbody>
+                    </table>
+                    <p id="noResults" style="text-align:center; color:#999; padding:20px; display:none;">No se encontraron joyas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages View -->
+        <div id="view-messages" class="view-section" style="display: none;">
+            <div class="main-header">
+                <div class="main-title">Buzón de Mensajes</div>
+            </div>
+
+            <div class="dashboard-grid">
+                 <div class="card" style="margin-bottom:0;">
+                    <div class="card-header"><div class="card-title">Consultas Recientes</div></div>
+                    <div id="messagesList">
+                        <!-- Filled by JS -->
+                    </div>
+                 </div>
+                 
+                 <div class="card" style="margin-bottom:0;">
+                     <div class="card-header"><div class="card-title">Suscriptores Newsletter</div></div>
+                     <ul id="subscribersList" style="list-style: none; padding: 0;">
+                        <!-- Filled by JS -->
+                     </ul>
+                 </div>
+            </div>
+        </div>
+
+        <!-- CMS View -->
+        <div id="view-cms" class="view-section" style="display: none;">
+            <div class="main-header">
+                <div class="main-title">Editor de Contenido</div>
+                <button class="btn btn-primary" onclick="saveCMS()"><i class="fas fa-save"></i> Guardar Cambios</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Textos Principales del Home</div></div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Título del Hero</label>
+                        <input type="text" id="cmsHeroTitle">
+                    </div>
+                    <div class="form-group">
+                        <label>Subtítulo del Hero</label>
+                        <input type="text" id="cmsHeroSubtitle">
+                    </div>
+                    <div class="form-group">
+                        <label>Texto del Botón Principal</label>
+                        <input type="text" id="cmsHeroCtaText">
+                    </div>
+                    <div class="form-group">
+                        <label>Enlace del Botón Principal</label>
+                        <input type="text" id="cmsHeroCtaLink" placeholder="collections.html">
+                    </div>
+                    <div class="form-group">
+                        <label>Título de Novedades</label>
+                        <input type="text" id="cmsFeaturedTitle">
+                    </div>
+                    <div class="form-group">
+                        <label>Título del Bloque Bespoke</label>
+                        <input type="text" id="cmsBespokeTitle">
+                    </div>
+                    <div class="form-group full">
+                        <label>Texto del Bloque Bespoke</label>
+                        <input type="text" id="cmsBespokeSubtitle">
+                    </div>
+                    <div class="form-group">
+                        <label>Texto del Botón Bespoke</label>
+                        <input type="text" id="cmsBespokeCtaText">
+                    </div>
+                    <div class="form-group">
+                        <label>Enlace del Botón Bespoke</label>
+                        <input type="text" id="cmsBespokeCtaLink" placeholder="bespoke.html">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Página de Inicio (Hero)</div></div>
+                <div class="form-group">
+                     <label>Imagen de Fondo (Hero Banner - 1920x1080)</label>
+                     <input type="text" id="cmsHeroImage" onchange="document.getElementById('prevHero').src = this.value" placeholder="URL o seleccionar archivo">
+                     <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'cmsHeroImage', 'prevHero')">
+                     <div class="preview-box" style="width: 100%; height: 150px;">
+                        <img id="prevHero" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                     </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Imágenes de Categorías (Home)</div></div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Imagen Anillos (600x800)</label>
+                        <input type="text" id="cmsRingImg" onchange="document.getElementById('prevRing').src = this.value">
+                        <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'cmsRingImg', 'prevRing')">
+                        <div class="preview-box">
+                            <img id="prevRing" src="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Imagen Collares (600x800)</label>
+                        <input type="text" id="cmsNeckImg" onchange="document.getElementById('prevNeck').src = this.value">
+                        <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'cmsNeckImg', 'prevNeck')">
+                        <div class="preview-box">
+                            <img id="prevNeck" src="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Imagen Pulseras (600x800)</label>
+                        <input type="text" id="cmsBracImg" onchange="document.getElementById('prevBrac').src = this.value">
+                        <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'cmsBracImg', 'prevBrac')">
+                        <div class="preview-box">
+                            <img id="prevBrac" src="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Sección Bespoke (Banner Central)</div></div>
+                <div class="form-group">
+                     <label>Imagen de Fondo (1200x600)</label>
+                     <input type="text" id="cmsBespokeImg" onchange="document.getElementById('prevBespoke').src = this.value">
+                     <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'cmsBespokeImg', 'prevBespoke')">
+                     <div class="preview-box" style="width: 100%; height: 150px;">
+                        <img id="prevBespoke" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                     </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Información de Contacto</div></div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Email de Contacto</label>
+                        <input type="email" id="cmsEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="cmsPhone">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="view-settings" class="view-section" style="display: none;">
+            <div class="main-header">
+                <div class="main-title">Configuración de Administrador</div>
+            </div>
+            
+            <div class="card" style="max-width: 600px;">
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>Nombre de Usuario</label>
+                        <input type="text" id="profUser">
+                    </div>
+                     <div class="form-group">
+                        <label>Nueva Contraseña (Dejar en blanco para mantener)</label>
+                        <input type="password" id="profPass">
+                    </div>
+                     <div class="form-group">
+                        <label>URL Avatar</label>
+                        <input type="text" id="profAvatar" onchange="document.getElementById('profPreview').src = this.value">
+                        <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'profAvatar', 'profPreview')">
+                        <div class="preview-box" style="width: 50px; height: 50px; margin-top: 10px; border-radius: 50%;">
+                             <img id="profPreview" src="">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+                </form>
+            </div>
+            
+            <div class="card" style="max-width: 600px; margin-top: 20px; border-left: 5px solid #2ecc71;">
+                <div class="card-header"><div class="card-title">Copia de Seguridad (Backup)</div></div>
+                <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">
+                    Como ingeniero reponsable, he configurado el sitio para funcionar sin servidores costosos. Todo se guarda en este navegador. 
+                    <strong>Descarga una copia regularmente</strong> para asegurar tus datos o llevarlos a otra computadora.
+                </p>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-primary" onclick="downloadBackup()"><i class="fas fa-download"></i> Descargar Backup Completo</button>
+                    
+                    <input type="file" id="backupInput" style="display:none" onchange="restoreBackup(this)">
+                    <button class="btn btn-outline" onclick="document.getElementById('backupInput').click()"><i class="fas fa-upload"></i> Restaurar Copia</button>
+                </div>
+            </div>
+
+            <div class="card" style="max-width: 600px; margin-top: 20px; border-left: 5px solid #111;">
+                <div class="card-header"><div class="card-title">Diagnóstico de Persistencia</div></div>
+                <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">
+                    Verifica que los cambios de inventario y contenido están guardados en este navegador y listos para respaldo.
+                </p>
+                <div class="dashboard-grid" style="grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px;">
+                    <div class="hero-side-card" style="padding: 14px; box-shadow: none;">
+                        <small>Estado</small>
+                        <strong id="settingsStorageStatus">-</strong>
+                    </div>
+                    <div class="hero-side-card" style="padding: 14px; box-shadow: none;">
+                        <small>Registros</small>
+                        <strong id="settingsStorageItems">0</strong>
+                    </div>
+                    <div class="hero-side-card" style="padding: 14px; box-shadow: none;">
+                        <small>Tamaño</small>
+                        <strong id="settingsStorageSize">0 KB</strong>
+                    </div>
+                </div>
+                <div id="settingsStorageDetails" style="display:grid; gap:8px; color:#555; font-size:0.92rem;"></div>
+                <div style="margin-top: 16px;">
+                    <button class="btn btn-primary" onclick="runStorageDiagnostics()"><i class="fas fa-shield-alt"></i> Verificar Guardado</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nueva Joya</h3>
+                <span class="close-modal" onclick="closeProductModal()">&times;</span>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="prodId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre de la Joya</label>
+                        <input type="text" id="prodName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Material Principal</label>
+                        <input type="text" id="prodMaterial" placeholder="Oro blanco 18K, plata, diamantes..." required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Descripción Detallada</label>
+                        <textarea id="prodDescription" rows="5" placeholder="Describe la pieza, su historia, acabados y detalles clave..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="prodCategory">
+                            <option value="anillos">Anillos</option>
+                            <option value="collares">Collares</option>
+                            <option value="pulseras">Pulseras</option>
+                            <option value="pendientes">Pendientes</option>
+                            <option value="alta-joyeria">Alta Joyería</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 28px;">
+                            <input type="checkbox" id="prodFeatured" style="width: auto;"> 
+                            Destacar en Página de Inicio
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group full">
+                    <label>Galería de Fotos (máximo 5)</label>
+                    <div class="photo-grid">
+                        <div class="photo-slot">
+                            <label>Foto 1</label>
+                            <input type="text" id="prodPhoto1" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview1').src = this.value">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto1', 'prodPhotoPreview1')">
+                            <div class="preview-box photo-preview"><img id="prodPhotoPreview1" src="" alt="Foto 1"></div>
+                        </div>
+                        <div class="photo-slot">
+                            <label>Foto 2</label>
+                            <input type="text" id="prodPhoto2" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview2').src = this.value">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto2', 'prodPhotoPreview2')">
+                            <div class="preview-box photo-preview"><img id="prodPhotoPreview2" src="" alt="Foto 2"></div>
+                        </div>
+                        <div class="photo-slot">
+                            <label>Foto 3</label>
+                            <input type="text" id="prodPhoto3" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview3').src = this.value">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto3', 'prodPhotoPreview3')">
+                            <div class="preview-box photo-preview"><img id="prodPhotoPreview3" src="" alt="Foto 3"></div>
+                        </div>
+                        <div class="photo-slot">
+                            <label>Foto 4</label>
+                            <input type="text" id="prodPhoto4" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview4').src = this.value">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto4', 'prodPhotoPreview4')">
+                            <div class="preview-box photo-preview"><img id="prodPhotoPreview4" src="" alt="Foto 4"></div>
+                        </div>
+                        <div class="photo-slot">
+                            <label>Foto 5</label>
+                            <input type="text" id="prodPhoto5" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview5').src = this.value">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto5', 'prodPhotoPreview5')">
+                            <div class="preview-box photo-preview"><img id="prodPhotoPreview5" src="" alt="Foto 5"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <button type="button" class="btn" onclick="closeProductModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Joya</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase (Base de Datos Nube) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase_config.js"></script>
+    <script src="store.js"></script>
+    <script>
+        // --- Mobile UI Logic ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+             loadProfile();
+             loadDashboard();
+             loadInventory();
+             loadCMSValues();
+        });
+
+        // --- Navigation ---
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+            document.getElementById('view-' + tabId).style.display = 'block';
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            // Auto-close sidebar on mobile
+            if(window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+            }
+
+            if(tabId === 'dashboard') loadDashboard();
+            if(tabId === 'inventory') loadInventory();
+            if(tabId === 'messages') loadMessages();
+            if(tabId === 'cms') loadCMSValues();
+            if(tabId === 'settings') runStorageDiagnostics();
+        }
+
+        // --- Profile ---
+        function loadProfile() {
+            const creds = Auth.getCreds();
+            document.getElementById('sidebarName').innerText = creds.username;
+            document.getElementById('sidebarAvatar').src = creds.avatar;
+            document.getElementById('profUser').value = creds.username;
+            document.getElementById('profAvatar').value = creds.avatar;
+            document.getElementById('profPreview').src = creds.avatar;
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            Auth.updateProfile(
+                document.getElementById('profUser').value,
+                document.getElementById('profPass').value || null,
+                document.getElementById('profAvatar').value
+            );
+            alert('Perfil actualizado. Recargando...');
+            location.reload();
+        });
+
+        // --- Dashboard ---
+        function loadDashboard() {
+            const stats = window.store.getStats();
+            const products = window.store.getProducts();
+            document.getElementById('statTotal').innerText = stats.totalItems;
+            document.getElementById('statPhotos').innerText = stats.totalPhotos;
+            
+            // Calc featured
+            const featuredCount = products.filter(p => p.featured).length;
+            document.getElementById('statFeatured').innerText = featuredCount;
+
+            const today = new Date();
+            document.getElementById('dashboardDate').innerText = today.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            document.getElementById('dashboardActiveCount').innerText = stats.totalItems;
+
+            const avgPhotos = stats.totalItems > 0 ? (stats.totalPhotos / stats.totalItems) : 0;
+            document.getElementById('dashboardAvgPhotos').innerText = avgPhotos.toFixed(1);
+
+            const missingPhotos = products.filter(p => !(Array.isArray(p.photos) ? p.photos.length : (p.image ? 1 : 0)));
+            document.getElementById('dashboardMissingPhotos').innerText = missingPhotos.length;
+
+            // Categories Chart (Simple HTML bars)
+            const catContainer = document.getElementById('categoryStats');
+            catContainer.innerHTML = '';
+            const categories = Object.entries(stats.categories);
+            let topCategory = 'Sin datos';
+            let topCategoryCount = 0;
+
+            if(categories.length === 0) {
+                catContainer.innerHTML = '<div class="dashboard-empty">Aún no hay datos para mostrar en esta sección.</div>';
+            } else {
+                categories.forEach(([cat, count]) => {
+                    if(count > topCategoryCount) {
+                        topCategory = cat;
+                        topCategoryCount = count;
+                    }
+
+                    const percent = stats.totalItems > 0 ? (count / stats.totalItems) * 100 : 0;
+                const bar = `
+                    <div style="text-align: left;">
+                        <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:8px; font-size:0.88rem; color:#4c4f58;">
+                            <strong style="text-transform: capitalize;">${cat}</strong>
+                            <span>${count}</span>
+                        </div>
+                        <div style="height: 12px; background: #edf0f4; border-radius: 999px; overflow: hidden;">
+                            <div style="width: ${percent}%; height: 100%; background: linear-gradient(90deg, #111 0%, #5a4630 100%); border-radius: inherit; transition: width 0.8s ease;"></div>
+                        </div>
+                    </div>
+                `;
+                catContainer.innerHTML += bar;
+                });
+            }
+
+            document.getElementById('dashboardTopCategory').innerText = topCategory;
+
+            const recentContainer = document.getElementById('recentProducts');
+            const recentProducts = [...products].sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 4);
+
+            if(recentProducts.length === 0) {
+                recentContainer.innerHTML = '<div class="dashboard-empty">Todavía no hay joyas para mostrar.</div>';
+            } else {
+                recentContainer.innerHTML = recentProducts.map(p => {
+                    const photos = Array.isArray(p.photos) ? p.photos : [];
+                    const mainPhoto = photos[0] || p.image || 'logo.svg';
+                    return `
+                        <div class="dashboard-recent-item">
+                            <img src="${mainPhoto}" alt="${p.name}">
+                            <div class="dashboard-recent-meta">
+                                <h4>${p.name}</h4>
+                                <p>${p.material || 'Sin material'} · ${p.description || 'Sin descripción'}</p>
+                                <div class="dashboard-recent-footer">
+                                    <span>${photos.length}/5 fotos</span>
+                                    <span>${p.featured ? 'Destacada' : 'Normal'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // --- Inventory ---
+        let currentProducts = [];
+
+        function loadInventory() {
+            currentProducts = window.store.getProducts();
+            renderInventoryTable(currentProducts);
+        }
+
+        function renderInventoryTable(products) {
+            const tbody = document.getElementById('inventoryTable');
+            tbody.innerHTML = '';
+            
+            if(products.length === 0) {
+                document.getElementById('noResults').style.display = 'block';
+                return;
+            }
+            document.getElementById('noResults').style.display = 'none';
+
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                const photoList = Array.isArray(p.photos) ? p.photos : [];
+                const mainPhoto = photoList[0] || p.image || 'logo.svg';
+                const description = p.description || 'Sin descripción.';
+                tr.innerHTML = `
+                    <td><img src="${mainPhoto}" onerror="this.src='logo.svg'" alt="${p.name}"></td>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.material || 'Sin material'}</td>
+                    <td style="max-width: 280px; color:#666;">${description}</td>
+                    <td>${photoList.length}/5</td>
+                    <td>
+                        <span class="capsule ${p.featured ? 'capsule-featured' : 'capsule-normal'}">
+                            ${p.featured ? 'Destacado' : 'Normal'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProd(${p.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- Messages & Subscribers ---
+        function loadMessages() {
+            // Messages
+            const messages = window.store.getMessages();
+            const msgList = document.getElementById('messagesList');
+            msgList.innerHTML = '';
+            
+            if(messages.length === 0) {
+                msgList.innerHTML = '<p style="color:#999; text-align:center; padding:20px;">No hay mensajes nuevos.</p>';
+            } else {
+                messages.forEach(m => {
+                    const div = document.createElement('div');
+                    div.style.borderBottom = '1px solid #eee';
+                    div.style.padding = '15px 0';
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <strong>${m.name}</strong>
+                            <small class="capsule capsule-normal">${m.date}</small>
+                        </div>
+                        <div style="color:#666; font-size:0.9rem; margin-bottom:5px;">${m.email}</div>
+                        <p style="margin:0; font-style:italic;">"${m.message}"</p>
+                        <button class="btn btn-sm btn-danger" style="margin-top:10px;" onclick="deleteMsg(${m.id})">Eliminar</button>
+                    `;
+                    msgList.appendChild(div);
+                });
+            }
+
+            // Subscribers
+            const subscribers = window.store.getSubscribers();
+            const subList = document.getElementById('subscribersList');
+            subList.innerHTML = '';
+             if(subscribers.length === 0) {
+                subList.innerHTML = '<li style="color:#999; text-align:center; padding:20px;">Sin suscriptores aún.</li>';
+            } else {
+                subscribers.forEach(s => {
+                    const li = document.createElement('li');
+                    li.style.padding = '10px';
+                    li.style.borderBottom = '1px solid #f9f9f9';
+                    li.style.display = 'flex';
+                    li.style.justifyContent = 'space-between';
+                    li.innerHTML = `<span>${s.email}</span> <small style="color:#aaa;">${s.date}</small>`;
+                    subList.appendChild(li);
+                });
+            }
+        }
+
+        function deleteMsg(id) {
+            if(confirm('¿Borrar mensaje?')) {
+                window.store.deleteMessage(id);
+                loadMessages();
+            }
+        }
+
+        function filterProducts(query) {
+            const lower = query.toLowerCase();
+            const filtered = currentProducts.filter(p => 
+                p.name.toLowerCase().includes(lower) || 
+                p.category.toLowerCase().includes(lower) ||
+                (p.material || '').toLowerCase().includes(lower) ||
+                (p.description || '').toLowerCase().includes(lower)
+            );
+            renderInventoryTable(filtered);
+        }
+
+        // --- Product Modal ---
+        const modal = document.getElementById('productModal');
+        const form = document.getElementById('productForm');
+
+        function openProductModal() {
+            modal.style.display = 'flex';
+            form.reset();
+            document.getElementById('prodId').value = '';
+            document.getElementById('modalTitle').innerText = 'Nueva Joya';
+            clearPhotoSlots();
+        }
+
+        function editProduct(id) {
+            const product = window.store.getProduct(id);
+            if(!product) return;
+
+            modal.style.display = 'flex';
+            document.getElementById('modalTitle').innerText = 'Editar Joya';
+            document.getElementById('prodId').value = product.id || '';
+            document.getElementById('prodName').value = product.name || '';
+            document.getElementById('prodMaterial').value = product.material || '';
+            document.getElementById('prodDescription').value = product.description || '';
+            document.getElementById('prodCategory').value = product.category || 'anillos';
+            document.getElementById('prodFeatured').checked = Boolean(product.featured);
+
+            const photos = Array.isArray(product.photos) ? product.photos : [product.image].filter(Boolean);
+            clearPhotoSlots();
+            photos.slice(0, 5).forEach((photo, index) => setPhotoSlot(index + 1, photo));
+        }
+
+        function setImgInput(inputId, imgId, value) {
+            const val = value || '';
+            const input = document.getElementById(inputId);
+            const img = document.getElementById(imgId);
+            
+            if(input) input.value = val;
+            if(img) img.src = val;
+        }
+
+        function setPhotoSlot(slotNumber, value) {
+            const input = document.getElementById('prodPhoto' + slotNumber);
+            const preview = document.getElementById('prodPhotoPreview' + slotNumber);
+            if(input) input.value = value || '';
+            if(preview) preview.src = value || '';
+        }
+
+        function clearPhotoSlots() {
+            for (let i = 1; i <= 5; i += 1) {
+                setPhotoSlot(i, '');
+            }
+        }
+
+        function collectPhotoValues() {
+            const photos = [];
+            for (let i = 1; i <= 5; i += 1) {
+                const value = document.getElementById('prodPhoto' + i).value.trim();
+                if (value) photos.push(value);
+            }
+            return photos;
+        }
+
+
+
+        function closeProductModal() {
+            modal.style.display = 'none';
+        }
+
+        function deleteProd(id) {
+            if(confirm('¿Confirma eliminar esta joya permanentemente?')) {
+                window.store.deleteProduct(id);
+                loadInventory();
+                loadDashboard();
+            }
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const photos = collectPhotoValues();
+            const p = {
+                id: document.getElementById('prodId').value, // If empty, store handles it as new
+                name: document.getElementById('prodName').value,
+                material: document.getElementById('prodMaterial').value,
+                description: document.getElementById('prodDescription').value,
+                category: document.getElementById('prodCategory').value,
+                photos: photos,
+                image: photos[0] || '',
+                featured: document.getElementById('prodFeatured').checked
+            };
+            
+            const saved = window.store.saveProduct(p);
+            if (!saved) {
+                alert('No se pudo guardar la joya. Revisa el tamaño de las imágenes e intenta de nuevo.');
+                return;
+            }
+
+            closeProductModal();
+            loadInventory();
+            loadDashboard();
+            alert('Joya guardada con éxito.');
+        });
+
+        // --- CMS ---
+        function loadCMSValues() {
+            const config = window.store.getConfig();
+            document.getElementById('cmsHeroTitle').value = config.heroTitle || '';
+            document.getElementById('cmsHeroSubtitle').value = config.heroSubtitle || '';
+            document.getElementById('cmsHeroCtaText').value = config.heroCtaText || '';
+            document.getElementById('cmsHeroCtaLink').value = config.heroCtaLink || '';
+            document.getElementById('cmsFeaturedTitle').value = config.featuredTitle || '';
+            document.getElementById('cmsBespokeTitle').value = config.bespokeTitle || '';
+            document.getElementById('cmsBespokeSubtitle').value = config.bespokeSubtitle || '';
+            document.getElementById('cmsBespokeCtaText').value = config.bespokeCtaText || '';
+            document.getElementById('cmsBespokeCtaLink').value = config.bespokeCtaLink || '';
+            document.getElementById('cmsEmail').value = config.contactEmail || '';
+            document.getElementById('cmsPhone').value = config.contactPhone || '';
+
+            // Images
+            // NOTE: Using IDs that match the HTML <img> tags for preview
+            setImgInput('cmsHeroImage', 'prevHero', config.heroImage);
+            setImgInput('cmsRingImg', 'prevRing', config.catRingImage);
+            setImgInput('cmsNeckImg', 'prevNeck', config.catNecklaceImage);
+            setImgInput('cmsBracImg', 'prevBrac', config.catBraceletImage);
+            setImgInput('cmsBespokeImg', 'prevBespoke', config.bespokeImage);
+        }
+
+        function saveCMS() {
+             // Load current config to perform a merge instead of overwrite
+             // This ensures that if a field is not present in this form, it remains untouched in the DB
+            const currentConfig = window.store.getConfig();
+            
+            const newConfig = {
+                ...currentConfig, // Spread existing values
+                
+                heroTitle: document.getElementById('cmsHeroTitle').value,
+                heroSubtitle: document.getElementById('cmsHeroSubtitle').value,
+                heroCtaText: document.getElementById('cmsHeroCtaText').value,
+                heroCtaLink: document.getElementById('cmsHeroCtaLink').value,
+                featuredTitle: document.getElementById('cmsFeaturedTitle').value,
+                bespokeTitle: document.getElementById('cmsBespokeTitle').value,
+                bespokeSubtitle: document.getElementById('cmsBespokeSubtitle').value,
+                bespokeCtaText: document.getElementById('cmsBespokeCtaText').value,
+                bespokeCtaLink: document.getElementById('cmsBespokeCtaLink').value,
+                contactEmail: document.getElementById('cmsEmail').value,
+                contactPhone: document.getElementById('cmsPhone').value,
+                
+                // Images - Only overwrite if the input has a value (it should, because we loaded it)
+                // But if something went wrong, let's be safe.
+                heroImage: document.getElementById('cmsHeroImage').value || currentConfig.heroImage,
+                catRingImage: document.getElementById('cmsRingImg').value || currentConfig.catRingImage,
+                catNecklaceImage: document.getElementById('cmsNeckImg').value || currentConfig.catNecklaceImage,
+                catBraceletImage: document.getElementById('cmsBracImg').value || currentConfig.catBraceletImage,
+                bespokeImage: document.getElementById('cmsBespokeImg').value || currentConfig.bespokeImage
+            };
+            
+            window.store.saveConfig(newConfig);
+            alert('Contenido actualizado. Ve a la página principal para ver los cambios.');
+        }
+
+        // --- Utils ---
+        function createOptimizedImageDataUrl(img, mimeType) {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            const MAX_SIZE = 1400;
+            const longestSide = Math.max(width, height);
+
+            if (longestSide > MAX_SIZE) {
+                const scale = MAX_SIZE / longestSide;
+                width = Math.round(width * scale);
+                height = Math.round(height * scale);
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const preferredMime = mimeType && mimeType.startsWith('image/') ? mimeType : 'image/webp';
+            const primaryType = preferredMime === 'image/webp' ? 'image/webp' : 'image/jpeg';
+
+            try {
+                const dataUrl = canvas.toDataURL(primaryType, 0.82);
+                if (dataUrl.length > 0) return dataUrl;
+            } catch (error) {
+                // Fallback below
+            }
+
+            return canvas.toDataURL('image/jpeg', 0.8);
+        }
+
+        function handleFileUpload(input, targetTextId, previewId) {
+            const file = input.files[0];
+            if(!file) return;
+
+            // Basic validation
+            if(!file.type.startsWith('image/')) {
+                alert('Por favor, selecciona un archivo de imagen válido.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const dataUrl = createOptimizedImageDataUrl(img, file.type);
+                    document.getElementById(targetTextId).value = dataUrl;
+                    
+                    // Safe set preview
+                    const prev = document.getElementById(previewId);
+                    if(prev) prev.src = dataUrl;
+                }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Helper to safely set inputs
+        function setImgInput(inputId, imgId, value) {
+            const val = value || '';
+            const input = document.getElementById(inputId);
+            const img = document.getElementById(imgId);
+            
+            if(input) input.value = val;
+            if(img) img.src = val;
+        }
+
+        // --- Backup System ---
+        function runStorageDiagnostics() {
+            const products = window.store.getProducts();
+            const config = window.store.getConfig();
+            const messages = window.store.getMessages();
+            const subscribers = window.store.getSubscribers();
+
+            const bytes = new Blob([
+                localStorage.getItem('joyeria_products') || '[]',
+                localStorage.getItem('joyeria_config') || '{}',
+                localStorage.getItem('joyeria_messages') || '[]',
+                localStorage.getItem('joyeria_subscribers') || '[]',
+                localStorage.getItem('joyeria_admin_creds') || '{}'
+            ]).size;
+
+            const statusEl = document.getElementById('settingsStorageStatus');
+            const itemsEl = document.getElementById('settingsStorageItems');
+            const sizeEl = document.getElementById('settingsStorageSize');
+
+            if (statusEl) statusEl.innerText = 'OK';
+            if (itemsEl) itemsEl.innerText = String(products.length + messages.length + subscribers.length);
+            if (sizeEl) sizeEl.innerText = (bytes / 1024).toFixed(1) + ' KB';
+
+            const detailsEl = document.getElementById('settingsStorageDetails');
+            if (detailsEl) {
+                detailsEl.innerHTML = `
+                    <div>Productos: <strong>${products.length}</strong></div>
+                    <div>Mensajes: <strong>${messages.length}</strong></div>
+                    <div>Suscriptores: <strong>${subscribers.length}</strong></div>
+                    <div>Configuración cargada: <strong>${config ? 'Sí' : 'No'}</strong></div>
+                `;
+            }
+        }
+
+        function downloadBackup() {
+            const rawStorage = {};
+            for (let i = 0; i < localStorage.length; i += 1) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('joyeria_')) {
+                    rawStorage[key] = localStorage.getItem(key);
+                }
+            }
+
+            const data = {
+                backupVersion: '2.0',
+                generatedAt: new Date().toISOString(),
+                products: window.store.getProducts(),
+                config: window.store.getConfig(),
+                messages: window.store.getMessages(),
+                subscribers: window.store.getSubscribers(),
+                adminCreds: JSON.parse(localStorage.getItem('joyeria_admin_creds') || '{}'),
+                rawStorage
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            const downloadAnchorNode = document.createElement('a');
+            const fileDate = new Date().toISOString().replace(/[:.]/g, '-');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "joyeria_backup_completo_" + fileDate + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function restoreBackup(input) {
+            const file = input.files[0];
+            if(!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.rawStorage && typeof data.rawStorage === 'object') {
+                        Object.keys(data.rawStorage).forEach((key) => {
+                            if (key.startsWith('joyeria_')) {
+                                localStorage.setItem(key, String(data.rawStorage[key] || ''));
+                            }
+                        });
+                    } else {
+                        if(data.products) localStorage.setItem('joyeria_products', JSON.stringify(data.products));
+                        if(data.config) localStorage.setItem('joyeria_config', JSON.stringify(data.config));
+                        if(data.messages) localStorage.setItem('joyeria_messages', JSON.stringify(data.messages));
+                        if(data.subscribers) localStorage.setItem('joyeria_subscribers', JSON.stringify(data.subscribers));
+                        if(data.adminCreds) localStorage.setItem('joyeria_admin_creds', JSON.stringify(data.adminCreds));
+                    }
+                    
+                    alert('Base de datos restaurada correctamente. La página se recargará.');
+                    location.reload();
+                } catch(err) {
+                    alert('Error al leer el archivo de respaldo: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+    </script>
+</body>
+</html>

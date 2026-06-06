@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio | Asbe Ziad</title>
+    <!-- Fuentes elegantes desde Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Iconos (FontAwesome o similares) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="top-bar">
+            <span>Joyería artesanal hecha a mano · Asbe Ziad</span>
+        </div>
+        <nav class="navbar">
+            <div class="menu-icon"><i class="fas fa-bars"></i></div>
+            <div class="logo">
+                <a href="index.html">
+                    <img src="logo.svg" alt="Asbe Ziad" class="nav-logo">
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="collections.html">Catálogo</a>
+                <a href="bespoke.html">Encargos</a>
+                <a href="high-jewellery.html">Piezas Especiales</a>
+                <a href="about.html">Sobre Mí</a>
+            </div>
+            <div class="nav-icons">
+                <a href="#" onclick="toggleSearch(event)"><i class="fas fa-search"></i></a>
+                <!-- <a href="#"><i class="far fa-heart"></i></a> -->
+                <!-- Cart removed as requested -->
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 id="cms-hero-title">CADA PIEZA, UNA HISTORIA</h1>
+            <p id="cms-hero-subtitle">Joyería artesanal diseñada y elaborada a mano.</p>
+            <a href="collections.html" id="cms-hero-cta" class="btn btn-primary">Ver Catálogo</a>
+        </div>
+        <!-- Placeholder para video o imagen de fondo -->
+        <div class="hero-background">
+            <!-- Usuario: Aquí iría tu video o imagen principal -->
+            <img id="cms-hero-bg" src="carrusel2.svg" alt="Hero Background">
+        </div>
+    </section>
+
+    <!-- Featured Categories -->
+    <section class="categories section-padding">
+        <div class="container">
+            <div class="category-grid">
+                <div class="category-item">
+                    <img id="cms-cat-rings" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23161513'/%3E%3Cstop offset='100%25' stop-color='%23312a21'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='800' fill='url(%23g)'/%3E%3Ccircle cx='300' cy='300' r='120' fill='none' stroke='%23c8a96a' stroke-width='18'/%3E%3Ccircle cx='300' cy='300' r='78' fill='none' stroke='%23f3e3bf' stroke-width='8' opacity='0.85'/%3E%3Ctext x='300' y='575' fill='%23f3e3bf' font-family='Georgia,serif' font-size='42' text-anchor='middle' letter-spacing='2'%3EANILLOS%3C/text%3E%3C/svg%3E" alt="Anillos">
+                    <div class="category-overlay">
+                        <h3>Anillos</h3>
+                        <a href="collections.html" class="btn-link">Ver Más</a>
+                    </div>
+                </div>
+                <div class="category-item">
+                    <img id="cms-cat-necklaces" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23161513'/%3E%3Cstop offset='100%25' stop-color='%23312a21'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='800' fill='url(%23g)'/%3E%3Cpath d='M170 255c28 78 73 121 130 121s102-43 130-121' fill='none' stroke='%23c8a96a' stroke-width='18' stroke-linecap='round'/%3E%3Cpath d='M205 250c23 56 56 84 95 84s72-28 95-84' fill='none' stroke='%23f3e3bf' stroke-width='8' stroke-linecap='round' opacity='0.85'/%3E%3Ctext x='300' y='575' fill='%23f3e3bf' font-family='Georgia,serif' font-size='42' text-anchor='middle' letter-spacing='2'%3ECOLLARES%3C/text%3E%3C/svg%3E" alt="Collares">
+                    <div class="category-overlay">
+                        <h3>Collares</h3>
+                        <a href="collections.html" class="btn-link">Ver Más</a>
+                    </div>
+                </div>
+                <div class="category-item">
+                    <img id="cms-cat-bracelets" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23161513'/%3E%3Cstop offset='100%25' stop-color='%23312a21'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='800' fill='url(%23g)'/%3E%3Ccircle cx='300' cy='300' r='120' fill='none' stroke='%23c8a96a' stroke-width='18' stroke-dasharray='24 16'/%3E%3Ccircle cx='300' cy='300' r='78' fill='none' stroke='%23f3e3bf' stroke-width='8' stroke-dasharray='10 10' opacity='0.85'/%3E%3Ctext x='300' y='575' fill='%23f3e3bf' font-family='Georgia,serif' font-size='42' text-anchor='middle' letter-spacing='2'%3EPULSERAS%3C/text%3E%3C/svg%3E" alt="Pulseras">
+                    <div class="category-overlay">
+                        <h3>Pulseras</h3>
+                        <a href="collections.html" class="btn-link">Ver Más</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bespoke / Custom Section (Estilo Bobby White hace mucho énfasis en custom) -->
+    <section class="bespoke section-padding">
+        <div class="bespoke-content">
+            <h2 id="cms-bespoke-title">PIEZAS A MEDIDA</h2>
+            <p id="cms-bespoke-subtitle">¿Tenés una idea en mente? Me encanta hacerla realidad.</p>
+            <a href="bespoke.html" id="cms-bespoke-cta" class="btn btn-outline">Hacer un encargo</a>
+        </div>
+        <div class="bespoke-image">
+             <img id="cms-bespoke-bg" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0.85'%3E%3Cstop offset='0%25' stop-color='%230d0c0b'/%3E%3Cstop offset='100%25' stop-color='%232b2117'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='600' fill='url(%23g)'/%3E%3Cpath d='M220 390c112-162 190-162 304 0 112-162 190-162 304 0' fill='none' stroke='%23c8a96a' stroke-width='14' stroke-linecap='round'/%3E%3Ccircle cx='300' cy='235' r='42' fill='none' stroke='%23f3e3bf' stroke-width='8'/%3E%3Ccircle cx='600' cy='235' r='42' fill='none' stroke='%23f3e3bf' stroke-width='8'/%3E%3Ccircle cx='900' cy='235' r='42' fill='none' stroke='%23f3e3bf' stroke-width='8'/%3E%3Ctext x='600' y='500' fill='%23f3e3bf' font-family='Georgia,serif' font-size='48' text-anchor='middle' letter-spacing='3'%3ETALLER ARTESANAL%3C/text%3E%3C/svg%3E" alt="Bespoke Process">
+        </div>
+    </section>
+
+    <!-- Product Carousel Section (Featured Products) -->
+    <section class="featured-products section-padding">
+        <div class="container">
+            <div class="section-header">
+                <h2 id="cms-featured-title">Últimas Piezas</h2>
+            </div>
+            
+            <!-- Contenedor dinámico -->
+            <div class="product-grid" id="featured-products-container">
+                <!-- Se llenará con JS -->
+            </div>
+            
+            <div class="center-btn">
+                <a href="collections.html" class="btn btn-primary">Ver Catálogo Completo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instagram/Social Feed Preview -->
+<section class="social-section section-padding">
+    <div class="container">
+        <h2 class="section-title">EN REDES SOCIALES</h2>
+        
+        <div class="social-links">
+            <a href="https://instagram.com" target="_blank" class="social-icon">
+                <img src="img/instagram.png" alt="Instagram">
+            </a>
+            <a href="https://tiktok.com" target="_blank" class="social-icon">
+                <img src="img/tik-tok.png" alt="TikTok">
+            </a>
+            <a href="https://wa.me/1234567890" target="_blank" class="social-icon">
+                <img src="img/whatsapp.png" alt="WhatsApp">
+            </a>
+        </div>
+    </div>
+</section>
+
+    <!-- Newsletter & Contact Section -->
+    <section class="section-padding" style="background: #f9f9f9;">
+        <div class="container">
+            <div class="two-column-layout">
+                <div>
+                     <h2>CONTACTO</h2>
+                     <p>¿Te interesa una pieza o querés hacer un encargo? Escribime.</p>
+                     <ul style="margin-top: 20px; line-height: 2;">
+                        <li><i class="fas fa-envelope" style="width: 25px; color: var(--accent-color);"></i> <span id="footer-email">contacto@asbeziad.com</span></li>
+                        <li><i class="fas fa-phone" style="width: 25px; color: var(--accent-color);"></i> <span id="footer-phone">+1 234 567 890</span></li>
+                     </ul>
+                </div>
+                <div>
+                    <form id="contact-form" class="styled-form">
+                        <input type="text" id="contact-name" placeholder="Tu nombre" required style="width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid #ddd;">
+                        <input type="email" id="contact-email" placeholder="Tu email" required style="width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid #ddd;">
+                        <textarea id="contact-msg" rows="4" placeholder="Contame qué tenés en mente..." required style="width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid #ddd; font-family: inherit;"></textarea>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-col">
+                    <h4>Navegación</h4>
+                    <ul>
+                        <li><a href="collections.html">Catálogo</a></li>
+                        <li><a href="bespoke.html">Encargos</a></li>
+                        <li><a href="high-jewellery.html">Piezas Especiales</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>El Proyecto</h4>
+                    <ul>
+                        <li><a href="about.html">Sobre Mí</a></li>
+                        <li><a href="index.html#contact-form">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col newsletter">
+                    <h4>Seguí mi trabajo</h4>
+                    <p>Te aviso cuando subo piezas nuevas al catálogo.</p>
+                    <form id="newsletter-form">
+                        <input type="email" id="newsletter-email" placeholder="Tu correo electrónico" required>
+                        <button type="submit">Suscribirse</button>
+                    </form>
+
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Asbe Ziad · Portafolio de joyería artesanal</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Search Overlay -->
+    <div id="search-overlay" class="search-overlay">
+        <div class="search-close" onclick="toggleSearch()"><i class="fas fa-times"></i></div>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Buscar joyas..." autocomplete="off">
+            <div id="search-results" class="search-results"></div>
+        </div>
+    </div>
+
+    <!-- Firebase (Base de Datos Nube) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase_config.js"></script>
+    <script src="store.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

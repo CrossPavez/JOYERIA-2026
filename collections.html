@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo | Asbe Ziad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+</head>
+<body>
+
+    <header class="header">
+        <div class="top-bar">
+            <span>Joyería artesanal hecha a mano · Asbe Ziad</span>
+        </div>
+        <nav class="navbar">
+            <div class="menu-icon"><i class="fas fa-bars"></i></div>
+            <div class="logo">
+                <a href="index.html">
+                    <img src="logo.svg" alt="Asbe Ziad" class="nav-logo">
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="collections.html">Catálogo</a>
+                <a href="bespoke.html">Encargos</a>
+                <a href="high-jewellery.html">Piezas Especiales</a>
+                <a href="about.html">Sobre Mí</a>
+            </div>
+            <div class="nav-icons">
+                <a href="#" onclick="toggleSearch(event)"><i class="fas fa-search"></i></a>
+                <!-- <a href="#"><i class="fas fa-shopping-bag"></i></a> -->
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Header (más pequeño que el Hero del Home) -->
+    <section class="page-header">
+        <div class="hero-background">
+            <img src="carrusel2.svg" alt="Hero Background">
+        </div>
+        <div class="header-content">
+            <h1>Mi Catálogo</h1>
+            <p>Todas las piezas que he fabricado y están disponibles.</p>
+        </div>
+    </section>
+
+    <!-- Collections Filter/Grid -->
+    <section class="section-padding">
+        <div class="container">
+            <div class="filter-options">
+                <span>Filtrar por:</span>
+                <a href="#" class="active">Todo</a>
+                <a href="#">Anillos</a>
+                <a href="#">Collares</a>
+                <a href="#">Brazaletes</a>
+                <a href="#">Pendientes</a>
+            </div>
+
+            <div class="product-grid" id="collections-container">
+                <!-- Se llenará con JS -->
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-col">
+                    <h4>Navegación</h4>
+                    <ul>
+                        <li><a href="collections.html">Catálogo</a></li>
+                        <li><a href="bespoke.html">Encargos</a></li>
+                        <li><a href="high-jewellery.html">Piezas Especiales</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>El Proyecto</h4>
+                    <ul>
+                        <li><a href="about.html">Sobre Mí</a></li>
+                        <li><a href="index.html#contact-form">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col newsletter">
+                    <h4>Seguí mi trabajo</h4>
+                    <p>Te aviso cuando subo piezas nuevas al catálogo.</p>
+                    <form id="newsletter-form">
+                        <input type="email" id="newsletter-email" placeholder="Tu correo electrónico">
+                        <button type="submit">Suscribirse</button>
+                    </form>
+                    <div class="social-links" style="margin-top: 20px;">
+                        <a href="https://instagram.com" target="_blank"><img src="img/instagram.png" alt="IG"></a>
+                        <a href="https://tiktok.com" target="_blank"><img src="img/tik-tok.png" alt="TikTok"></a>
+                        <a href="https://wa.me/1234567890" target="_blank"><img src="img/whatsapp.png" alt="WhatsApp"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Asbe Ziad · Portafolio de joyería artesanal</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Search Overlay -->
+    <div id="search-overlay" class="search-overlay">
+        <div class="search-close" onclick="toggleSearch()"><i class="fas fa-times"></i></div>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Buscar joyas..." autocomplete="off">
+            <div id="search-results" class="search-results"></div>
+        </div>
+    </div>
+
+    <!-- Firebase (Base de Datos Nube) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="firebase_config.js"></script>
+    <script src="store.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
