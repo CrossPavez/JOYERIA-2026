@@ -455,6 +455,7 @@
             .search-bar { width: 100%; }
             .card { padding: 20px; }
             .main-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .modal { align-items: flex-end; padding: 0; }
             .modal-content { width: 100%; max-width: 100%; height: auto; max-height: 94vh; border-radius: 18px 18px 0 0; position: relative; }
             .photo-grid { grid-template-columns: 1fr; }
             .photo-preview { height: 180px; }
@@ -474,6 +475,15 @@
         }
 
         .mobile-header { display: none; } /* Hidden on desktop */
+
+        @media (max-width: 480px) {
+            .main { padding: 12px; padding-top: 68px; }
+            .card { padding: 16px; }
+            .stat-number { font-size: 1.6rem; }
+            .modal-content { padding: 20px; max-height: 96vh; }
+            input, textarea, select { font-size: 16px !important; } /* Evita zoom en iOS */
+            .btn, button[type="submit"] { padding: 12px 18px; font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>

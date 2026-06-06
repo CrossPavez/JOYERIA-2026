@@ -259,7 +259,7 @@ const Store = {
         const existingProduct = product.id ? products.find(p => p.id == product.id) : null;
         const persisted = {
             id: isNew ? Date.now() : Number(product.id),
-            createdAt: isNew ? Date.now() : (existingProduct?.createdAt || normalized.createdAt || 0),
+            createdAt: isNew ? Date.now() : ((existingProduct && existingProduct.createdAt) || normalized.createdAt || 0),
             name: normalized.name,
             material: normalized.material,
             description: normalized.description,

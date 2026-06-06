@@ -144,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('scroll', revealOnScroll);
+    revealOnScroll();
 
     const escapeHtml = (str) => String(str)
         .replace(/&/g, '&amp;')
