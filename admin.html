@@ -476,6 +476,25 @@
 
         .mobile-header { display: none; } /* Hidden on desktop */
 
+        /* Crop Modal */
+        .crop-modal { display:none; position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,0.88); align-items:center; justify-content:center; padding:16px; }
+        .crop-modal.active { display:flex; }
+        .crop-box { background:#fff; border-radius:20px; padding:24px; width:100%; max-width:380px; }
+        .crop-box h4 { font-size:1rem; font-weight:700; margin:0 0 4px; }
+        .crop-box p { font-size:0.8rem; color:#999; margin:0 0 16px; }
+        .crop-frame { width:280px; height:280px; overflow:hidden; position:relative; border-radius:10px; margin:0 auto; cursor:grab; border:3px solid var(--accent); background:#e8e8e8; touch-action:none; }
+        .crop-frame.dragging { cursor:grabbing; }
+        .crop-frame img { position:absolute; max-width:none; max-height:none; user-select:none; -webkit-user-drag:none; pointer-events:none; }
+        .crop-hint { text-align:center; font-size:0.75rem; color:#bbb; margin-top:8px; }
+        .crop-actions { display:flex; gap:10px; margin-top:16px; justify-content:flex-end; }
+
+        /* Video slot */
+        .video-slot { padding:14px; border:1px solid #eee; border-radius:18px; background:linear-gradient(180deg,#fff 0%,#fafafa 100%); }
+        .video-slot > label { font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; color:#666; display:block; margin-bottom:8px; }
+        .video-preview-box { border-radius:12px; overflow:hidden; background:#000; margin-top:10px; }
+        .video-preview-box video { width:100%; max-height:200px; display:block; }
+        .video-clear-btn { margin-top:8px; font-size:0.8rem; color:var(--danger); background:none; border:none; cursor:pointer; padding:0; }
+
         @media (max-width: 480px) {
             .main { padding: 12px; padding-top: 68px; }
             .card { padding: 16px; }
@@ -864,6 +883,22 @@
 
     </main>
 
+    <!-- Crop Modal -->
+    <div class="crop-modal" id="cropModal">
+        <div class="crop-box">
+            <h4>Cuadrar imagen</h4>
+            <p>Arrastrá para elegir el encuadre · Salida: 800 × 800 px</p>
+            <div class="crop-frame" id="cropFrame">
+                <img id="cropImg" src="" alt="" draggable="false">
+            </div>
+            <p class="crop-hint">Podés hacer zoom pellizcando en el celular</p>
+            <div class="crop-actions">
+                <button type="button" class="btn" onclick="cancelCrop()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="applyCrop()">Aplicar encuadre</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Product Modal -->
     <div class="modal" id="productModal">
         <div class="modal-content">
@@ -909,33 +944,44 @@
                         <div class="photo-slot">
                             <label>Foto 1</label>
                             <input type="text" id="prodPhoto1" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview1').src = this.value">
-                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto1', 'prodPhotoPreview1')">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="if(this.files[0])openCropModal(this.files[0],'prodPhoto1','prodPhotoPreview1');this.value=''">
                             <div class="preview-box photo-preview"><img id="prodPhotoPreview1" src="" alt="Foto 1"></div>
                         </div>
                         <div class="photo-slot">
                             <label>Foto 2</label>
                             <input type="text" id="prodPhoto2" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview2').src = this.value">
-                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto2', 'prodPhotoPreview2')">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="if(this.files[0])openCropModal(this.files[0],'prodPhoto2','prodPhotoPreview2');this.value=''">
                             <div class="preview-box photo-preview"><img id="prodPhotoPreview2" src="" alt="Foto 2"></div>
                         </div>
                         <div class="photo-slot">
                             <label>Foto 3</label>
                             <input type="text" id="prodPhoto3" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview3').src = this.value">
-                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto3', 'prodPhotoPreview3')">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="if(this.files[0])openCropModal(this.files[0],'prodPhoto3','prodPhotoPreview3');this.value=''">
                             <div class="preview-box photo-preview"><img id="prodPhotoPreview3" src="" alt="Foto 3"></div>
                         </div>
                         <div class="photo-slot">
                             <label>Foto 4</label>
                             <input type="text" id="prodPhoto4" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview4').src = this.value">
-                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto4', 'prodPhotoPreview4')">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="if(this.files[0])openCropModal(this.files[0],'prodPhoto4','prodPhotoPreview4');this.value=''">
                             <div class="preview-box photo-preview"><img id="prodPhotoPreview4" src="" alt="Foto 4"></div>
                         </div>
                         <div class="photo-slot">
                             <label>Foto 5</label>
                             <input type="text" id="prodPhoto5" placeholder="URL o carga desde archivo" onchange="document.getElementById('prodPhotoPreview5').src = this.value">
-                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="handleFileUpload(this, 'prodPhoto5', 'prodPhotoPreview5')">
+                            <input type="file" accept="image/*" style="margin-top:5px;" onchange="if(this.files[0])openCropModal(this.files[0],'prodPhoto5','prodPhotoPreview5');this.value=''">
                             <div class="preview-box photo-preview"><img id="prodPhotoPreview5" src="" alt="Foto 5"></div>
                         </div>
+                    </div>
+                </div>
+                <div class="form-group full">
+                    <label>Video de la pieza (opcional · máx. 15 MB)</label>
+                    <div class="video-slot">
+                        <input type="file" id="prodVideoFile" accept="video/*" onchange="handleVideoUpload(this)">
+                        <div id="prodVideoPreview" style="display:none;">
+                            <div class="video-preview-box"><video id="prodVideoPlayer" controls></video></div>
+                            <button type="button" class="video-clear-btn" onclick="clearVideo()">✕ Eliminar video</button>
+                        </div>
+                        <input type="hidden" id="prodVideo">
                     </div>
                 </div>
                 <div style="text-align: right;">
@@ -1232,6 +1278,12 @@
             const photos = Array.isArray(product.photos) ? product.photos : [product.image].filter(Boolean);
             clearPhotoSlots();
             photos.slice(0, 5).forEach((photo, index) => setPhotoSlot(index + 1, photo));
+            const existingVideo = Array.isArray(product.videos) && product.videos[0] ? product.videos[0] : '';
+            if (existingVideo) {
+                document.getElementById('prodVideo').value = existingVideo;
+                document.getElementById('prodVideoPlayer').src = existingVideo;
+                document.getElementById('prodVideoPreview').style.display = 'block';
+            }
         }
 
         function setImgInput(inputId, imgId, value) {
@@ -1254,6 +1306,7 @@
             for (let i = 1; i <= 5; i += 1) {
                 setPhotoSlot(i, '');
             }
+            clearVideo();
         }
 
         function collectPhotoValues() {
@@ -1290,7 +1343,8 @@
                 category: document.getElementById('prodCategory').value,
                 photos: photos,
                 image: photos[0] || '',
-                featured: document.getElementById('prodFeatured').checked
+                featured: document.getElementById('prodFeatured').checked,
+                videos: document.getElementById('prodVideo').value ? [document.getElementById('prodVideo').value] : []
             };
             
             const saved = window.store.saveProduct(p);
@@ -1429,6 +1483,118 @@
             
             if(input) input.value = val;
             if(img) img.src = val;
+        }
+
+        // --- Crop Tool ---
+        var CROP_OUT = 800;
+        var CROP_FRAME_PX = 280;
+        var _crop = {};
+
+        function openCropModal(file, inputId, previewId) {
+            _crop = { inputId: inputId, previewId: previewId, ox: 0, oy: 0, scale: 1, dw: 0, dh: 0 };
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = document.getElementById('cropImg');
+                img.onload = function() {
+                    var nw = img.naturalWidth, nh = img.naturalHeight;
+                    var s = CROP_FRAME_PX / Math.min(nw, nh);
+                    var dw = Math.round(nw * s), dh = Math.round(nh * s);
+                    _crop.scale = s; _crop.dw = dw; _crop.dh = dh;
+                    img.style.width = dw + 'px'; img.style.height = dh + 'px';
+                    var ox = -Math.round((dw - CROP_FRAME_PX) / 2);
+                    var oy = -Math.round((dh - CROP_FRAME_PX) / 2);
+                    _crop.ox = ox; _crop.oy = oy;
+                    img.style.left = ox + 'px'; img.style.top = oy + 'px';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            document.getElementById('cropModal').classList.add('active');
+        }
+
+        function cancelCrop() {
+            document.getElementById('cropModal').classList.remove('active');
+        }
+
+        function applyCrop() {
+            var img = document.getElementById('cropImg');
+            var canvas = document.createElement('canvas');
+            canvas.width = CROP_OUT; canvas.height = CROP_OUT;
+            var ctx = canvas.getContext('2d');
+            var cropX = (-_crop.ox) / _crop.scale;
+            var cropY = (-_crop.oy) / _crop.scale;
+            var cropSize = CROP_FRAME_PX / _crop.scale;
+            ctx.drawImage(img, cropX, cropY, cropSize, cropSize, 0, 0, CROP_OUT, CROP_OUT);
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+            document.getElementById(_crop.inputId).value = dataUrl;
+            var prev = document.getElementById(_crop.previewId);
+            if (prev) prev.src = dataUrl;
+            cancelCrop();
+        }
+
+        // Drag to crop — mouse + touch
+        (function() {
+            var dragging = false, sx, sy, sox, soy;
+            document.addEventListener('DOMContentLoaded', function() {
+                var frame = document.getElementById('cropFrame');
+                function onDown(e) {
+                    if (!document.getElementById('cropModal').classList.contains('active')) return;
+                    dragging = true;
+                    var pt = e.touches ? e.touches[0] : e;
+                    sx = pt.clientX; sy = pt.clientY;
+                    sox = _crop.ox; soy = _crop.oy;
+                    frame.classList.add('dragging');
+                    e.preventDefault();
+                }
+                function onMove(e) {
+                    if (!dragging) return;
+                    var pt = e.touches ? e.touches[0] : e;
+                    var nx = sox + (pt.clientX - sx);
+                    var ny = soy + (pt.clientY - sy);
+                    nx = Math.min(0, Math.max(-(_crop.dw - CROP_FRAME_PX), nx));
+                    ny = Math.min(0, Math.max(-(_crop.dh - CROP_FRAME_PX), ny));
+                    _crop.ox = nx; _crop.oy = ny;
+                    var img = document.getElementById('cropImg');
+                    img.style.left = nx + 'px'; img.style.top = ny + 'px';
+                    e.preventDefault();
+                }
+                function onUp() { dragging = false; frame.classList.remove('dragging'); }
+                frame.addEventListener('mousedown', onDown);
+                frame.addEventListener('touchstart', onDown, { passive: false });
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('mouseup', onUp);
+                document.addEventListener('touchend', onUp);
+            });
+        })();
+
+        // --- Video Upload ---
+        function handleVideoUpload(input) {
+            var file = input.files[0];
+            if (!file) return;
+            var MAX_MB = 15;
+            if (file.size > MAX_MB * 1024 * 1024) {
+                alert('El video supera los ' + MAX_MB + ' MB. Usá un clip más corto o en menor resolución.');
+                input.value = ''; return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('prodVideo').value = e.target.result;
+                document.getElementById('prodVideoPlayer').src = e.target.result;
+                document.getElementById('prodVideoPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearVideo() {
+            var v = document.getElementById('prodVideo');
+            var p = document.getElementById('prodVideoPlayer');
+            var w = document.getElementById('prodVideoPreview');
+            var f = document.getElementById('prodVideoFile');
+            if (v) v.value = '';
+            if (p) p.src = '';
+            if (w) w.style.display = 'none';
+            if (f) f.value = '';
         }
 
         // --- Backup System ---

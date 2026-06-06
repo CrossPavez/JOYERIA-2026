@@ -165,6 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="product-detail-media">
                         <img id="product-detail-main-image" src="" alt="Joya seleccionada">
                         <div class="product-detail-thumbs" id="product-detail-thumbs"></div>
+                        <div id="product-detail-video-wrap" style="display:none; margin-top:14px;">
+                            <video id="product-detail-video" controls style="width:100%; border-radius:14px; background:#000;"></video>
+                        </div>
                     </div>
                     <div class="product-detail-body">
                         <div class="product-detail-kicker">Ficha de Joya</div>
@@ -286,6 +289,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('product-detail-main-image').src = thumb.getAttribute('data-photo');
             });
         });
+
+        const videoWrap = document.getElementById('product-detail-video-wrap');
+        const videoEl = document.getElementById('product-detail-video');
+        const productVideo = Array.isArray(product.videos) && product.videos[0];
+        if (productVideo) {
+            videoEl.src = productVideo;
+            videoWrap.style.display = 'block';
+        } else {
+            videoEl.src = '';
+            videoWrap.style.display = 'none';
+        }
 
         renderComments(product.id);
 

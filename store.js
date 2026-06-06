@@ -21,6 +21,7 @@ const normalizeProduct = (product = {}) => {
         category: product.category || 'anillos',
         featured: Boolean(product.featured),
         createdAt: product.createdAt || 0,
+        videos: Array.isArray(product.videos) ? product.videos.filter(Boolean) : [],
         photos: photos.slice(0, 5),
         image: primaryImage
     };
@@ -266,7 +267,8 @@ const Store = {
             category: normalized.category,
             photos: normalized.photos,
             image: normalized.image,
-            featured: normalized.featured
+            featured: normalized.featured,
+            videos: normalized.videos
         };
 
         if (product.id) {
