@@ -1,5 +1,5 @@
 // store.js - Arquitectura Híbrida (Local + Nube)
-// Compatible con Firebase Cloud Firestore
+// Compatible con Supabase REST API (sin SDK, solo fetch)
 
 // --- DATOS POR DEFECTO ---
 const normalizeProduct = (product = {}) => {
@@ -103,23 +103,27 @@ const defaultConfig = {
     bespokeImage: "carrusel2.svg"
 };
 
-const mergeByIdPreferLocal = (localItems = [], cloudItems = []) => {
+const mergeByIdPreferLocal = (localItems, cloudItems) => {
+    localItems = localItems || [];
+    cloudItems = cloudItems || [];
     const map = new Map();
-    cloudItems.forEach((item) => {
+    cloudItems.forEach(function(item) {
         if (item && item.id != null) map.set(String(item.id), item);
     });
-    localItems.forEach((item) => {
+    localItems.forEach(function(item) {
         if (item && item.id != null) map.set(String(item.id), item);
     });
     return Array.from(map.values());
 };
 
-const mergeSubscribersPreferLocal = (localItems = [], cloudItems = []) => {
+const mergeSubscribersPreferLocal = (localItems, cloudItems) => {
+    localItems = localItems || [];
+    cloudItems = cloudItems || [];
     const map = new Map();
-    cloudItems.forEach((item) => {
+    cloudItems.forEach(function(item) {
         if (item && item.email) map.set(String(item.email).toLowerCase(), item);
     });
-    localItems.forEach((item) => {
+    localItems.forEach(function(item) {
         if (item && item.email) map.set(String(item.email).toLowerCase(), item);
     });
     return Array.from(map.values());
@@ -128,111 +132,128 @@ const mergeSubscribersPreferLocal = (localItems = [], cloudItems = []) => {
 // --- SINGLETON DE BASE DE DATOS ---
 const DB = {
     isCloud: false,
-    firestore: null,
 
-    init: () => {
-        // Detectar si hay configuración y librería cargada
-        // Check window.firebase explicitly in case library failed to load
-        if (typeof firebase !== 'undefined' && window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) {
-            try {
-                // Prevenir doble inicialización
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(window.FIREBASE_CONFIG);
-                }
-                DB.firestore = firebase.firestore();
-                DB.isCloud = true;
-                console.log("☁️ MODO NUBE ACTIVADO: Conectado a Firebase");
-                
-                // Sincronización Inicial (Bajada de datos)
-                DB.syncDown();
-            } catch (e) {
-                console.error("Error conectando a Firebase:", e);
-                DB.isCloud = false;
-            }
+    init: function() {
+        var url = window.SUPABASE_URL || '';
+        var key = window.SUPABASE_KEY || '';
+
+        if (
+            url &&
+            key &&
+            url !== 'TU_PROJECT_URL_AQUI' &&
+            key !== 'TU_ANON_KEY_AQUI'
+        ) {
+            DB.isCloud = true;
+            console.log('☁️ MODO NUBE ACTIVADO: Conectado a Supabase');
+            DB.syncDown();
         } else {
-            console.log("🏠 MODO LOCAL: Usando localStorage (Gratis/Offline)");
+            console.log('🏠 MODO LOCAL: Usando localStorage (Gratis/Offline)');
         }
     },
 
-    syncDown: async () => {
+    _headers: function() {
+        var key = window.SUPABASE_KEY || '';
+        return {
+            'apikey': key,
+            'Authorization': 'Bearer ' + key,
+            'Content-Type': 'application/json'
+        };
+    },
+
+    _get: async function(collection) {
+        try {
+            var url = window.SUPABASE_URL + '/rest/v1/kv?key=eq.' + encodeURIComponent(collection) + '&select=value';
+            var res = await fetch(url, { headers: DB._headers() });
+            if (!res.ok) return null;
+            var rows = await res.json();
+            if (!Array.isArray(rows) || rows.length === 0) return null;
+            return rows[0].value;
+        } catch(e) {
+            console.warn('Supabase _get error (' + collection + '):', e);
+            return null;
+        }
+    },
+
+    _set: async function(collection, value) {
+        try {
+            var url = window.SUPABASE_URL + '/rest/v1/kv';
+            var res = await fetch(url, {
+                method: 'POST',
+                headers: Object.assign({}, DB._headers(), { 'Prefer': 'resolution=merge-duplicates' }),
+                body: JSON.stringify({ key: collection, value: value })
+            });
+            return res.ok;
+        } catch(e) {
+            console.error('Supabase _set error (' + collection + '):', e);
+            return false;
+        }
+    },
+
+    syncDown: async function() {
         if (!DB.isCloud) return;
-        
+
         try {
             // Bajamos productos
-            const pSnap = await DB.firestore.collection('products').get();
-            if (!pSnap.empty) {
-                const cloudProducts = pSnap.docs.map(doc => doc.data());
-                const localProducts = Store.getProducts();
-                const mergedProducts = mergeByIdPreferLocal(localProducts, cloudProducts).map(normalizeProduct);
+            var cloudProducts = await DB._get('products');
+            if (Array.isArray(cloudProducts) && cloudProducts.length > 0) {
+                var localProducts = Store.getProducts();
+                var mergedProducts = mergeByIdPreferLocal(localProducts, cloudProducts).map(normalizeProduct);
                 if (mergedProducts.length > 0) {
                     localStorage.setItem('joyeria_products', JSON.stringify(mergedProducts));
-                    console.log("☁️ Productos sincronizados (" + mergedProducts.length + ")");
+                    console.log('☁️ Productos sincronizados (' + mergedProducts.length + ')');
                 }
             }
 
             // Bajamos configuración
-            const cSnap = await DB.firestore.collection('config').doc('main').get();
-            if (cSnap.exists) {
-                const cloudConfig = cSnap.data() || {};
-                const localRaw = localStorage.getItem('joyeria_config');
-                // Solo pisamos Firebase con local si el usuario ya guardó algo explícitamente
-                const mergedConfig = localRaw
-                    ? { ...cloudConfig, ...JSON.parse(localRaw) }
+            var cloudConfig = await DB._get('config');
+            if (cloudConfig && typeof cloudConfig === 'object') {
+                var localRaw = localStorage.getItem('joyeria_config');
+                var mergedConfig = localRaw
+                    ? Object.assign({}, cloudConfig, JSON.parse(localRaw))
                     : cloudConfig;
                 localStorage.setItem('joyeria_config', JSON.stringify(mergedConfig));
             }
 
-            // Bajamos Mensajes (CRM)
-            const mSnap = await DB.firestore.collection('messages').orderBy('date', 'desc').limit(50).get();
-            if (!mSnap.empty) {
-                const cloudMessages = mSnap.docs.map(doc => doc.data()).sort((a,b) => b.id - a.id);
-                const localMessages = Store.getMessages();
-                const mergedMessages = mergeByIdPreferLocal(localMessages, cloudMessages)
-                    .sort((a, b) => Number(b.id) - Number(a.id));
+            // Bajamos mensajes (CRM)
+            var cloudMessages = await DB._get('messages');
+            if (Array.isArray(cloudMessages) && cloudMessages.length > 0) {
+                var localMessages = Store.getMessages();
+                var mergedMessages = mergeByIdPreferLocal(localMessages, cloudMessages)
+                    .sort(function(a, b) { return Number(b.id) - Number(a.id); });
                 localStorage.setItem('joyeria_messages', JSON.stringify(mergedMessages));
             }
 
-            // Bajamos Suscriptores
-            const sSnap = await DB.firestore.collection('subscribers').get();
-            if (!sSnap.empty) {
-                const cloudSubs = sSnap.docs.map(doc => doc.data());
-                const localSubs = Store.getSubscribers();
-                const mergedSubs = mergeSubscribersPreferLocal(localSubs, cloudSubs);
+            // Bajamos suscriptores
+            var cloudSubs = await DB._get('subscribers');
+            if (Array.isArray(cloudSubs) && cloudSubs.length > 0) {
+                var localSubs = Store.getSubscribers();
+                var mergedSubs = mergeSubscribersPreferLocal(localSubs, cloudSubs);
                 localStorage.setItem('joyeria_subscribers', JSON.stringify(mergedSubs));
             }
 
-            // Bajamos Comentarios
-            const commSnap = await DB.firestore.collection('comments').orderBy('createdAt', 'desc').limit(500).get();
-            if (!commSnap.empty) {
-                const cloudComments = commSnap.docs.map(doc => doc.data());
-                const localComments = Store.getAllComments();
-                const mergedComments = mergeByIdPreferLocal(localComments, cloudComments)
-                    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            // Bajamos comentarios
+            var cloudComments = await DB._get('comments');
+            if (Array.isArray(cloudComments) && cloudComments.length > 0) {
+                var localComments = Store.getAllComments();
+                var mergedComments = mergeByIdPreferLocal(localComments, cloudComments)
+                    .sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
                 localStorage.setItem('joyeria_comments', JSON.stringify(mergedComments));
             }
 
             window.dispatchEvent(new CustomEvent('store:synced'));
-        } catch (e) {
-            console.warn("No se pudo sincronizar desde la nube:", e);
-        }
-    },
-
-    save: async (collection, id, data) => {
-        if (!DB.isCloud) return;
-        try {
-            await DB.firestore.collection(collection).doc(String(id)).set(data);
-            console.log(`☁️ Guardado en nube: ${collection}/${id}`);
         } catch(e) {
-            console.error("Error guardando en nube:", e);
+            console.warn('No se pudo sincronizar desde la nube:', e);
         }
     },
 
-    delete: async (collection, id) => {
+    save: async function(collection, fullData) {
         if (!DB.isCloud) return;
-        try {
-            await DB.firestore.collection(collection).doc(String(id)).delete();
-            console.log(`☁️ Eliminado de nube: ${collection}/${id}`);
-        } catch(e) { console.error(e); }
+        var ok = await DB._set(collection, fullData);
+        if (ok) {
+            console.log('☁️ Guardado en nube: ' + collection);
+        } else {
+            console.error('Error guardando en nube: ' + collection);
+        }
     }
 };
 
@@ -242,7 +263,7 @@ DB.init();
 
 // --- TIENDA PÚBLICA (API) ---
 const Store = {
-    
+
     // --- Products ---
     getProducts: () => {
         const stored = localStorage.getItem('joyeria_products');
@@ -281,13 +302,13 @@ const Store = {
         } else {
             products.push(persisted);
         }
-        
+
         try {
             localStorage.setItem('joyeria_products', JSON.stringify(products));
-            
+
             // SYNC CLOUD
-            if (DB.isCloud) DB.save('products', persisted.id, persisted);
-            
+            if (DB.isCloud) DB.save('products', products);
+
             return true;
         } catch (e) {
             if (e.name === 'QuotaExceededError' || e.code === 22) {
@@ -301,7 +322,7 @@ const Store = {
         let products = Store.getProducts();
         products = products.filter(p => p.id != id);
         try { localStorage.setItem('joyeria_products', JSON.stringify(products)); } catch(e) {}
-        if (DB.isCloud) DB.delete('products', id);
+        if (DB.isCloud) DB.save('products', products);
     },
 
     // --- Statistics ---
@@ -324,7 +345,7 @@ const Store = {
         try {
             localStorage.setItem('joyeria_config', JSON.stringify(config));
             // SYNC CLOUD
-            if (DB.isCloud) DB.save('config', 'main', config);
+            if (DB.isCloud) DB.save('config', config);
         } catch (e) {
             alert('Error guardando configuración (posiblemente imagen muy grande).');
         }
@@ -342,14 +363,14 @@ const Store = {
         msg.date = new Date().toLocaleDateString();
         messages.unshift(msg);
         try { localStorage.setItem('joyeria_messages', JSON.stringify(messages)); } catch(e) {}
-        if (DB.isCloud) DB.save('messages', msg.id, msg);
+        if (DB.isCloud) DB.save('messages', messages);
     },
 
     deleteMessage: (id) => {
         let messages = Store.getMessages();
         messages = messages.filter(m => m.id != id);
         try { localStorage.setItem('joyeria_messages', JSON.stringify(messages)); } catch(e) {}
-        if (DB.isCloud) DB.delete('messages', id);
+        if (DB.isCloud) DB.save('messages', messages);
     },
 
     // --- Comments ---
@@ -379,7 +400,7 @@ const Store = {
             console.warn('No se pudo guardar el comentario (almacenamiento lleno).');
             return null;
         }
-        if (DB.isCloud) DB.save('comments', saved.id, saved);
+        if (DB.isCloud) DB.save('comments', all);
         return saved;
     },
 
@@ -387,7 +408,7 @@ const Store = {
         let all = Store.getAllComments();
         all = all.filter(c => c.id != id);
         try { localStorage.setItem('joyeria_comments', JSON.stringify(all)); } catch(e) {}
-        if (DB.isCloud) DB.delete('comments', id);
+        if (DB.isCloud) DB.save('comments', all);
     },
 
     // --- Subscribers ---
@@ -402,7 +423,7 @@ const Store = {
             const newSub = { email, date: new Date().toLocaleDateString(), id: Date.now() };
             subs.unshift(newSub);
             try { localStorage.setItem('joyeria_subscribers', JSON.stringify(subs)); } catch(e) {}
-            if (DB.isCloud) DB.save('subscribers', newSub.id, newSub);
+            if (DB.isCloud) DB.save('subscribers', subs);
             return true;
         }
         return false;
